@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #00ff88;
+        }
+
+        .header p {
+            color: #ccc;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background: rgba(0, 255, 136, 0.1);
+            margin-left: auto;
+            border-left: 4px solid #00ff88;
+        }
+
+        .assistant-message {
+            background: rgba(255, 255, 255, 0.1);
+            margin-right: auto;
+            border-left: 4px solid #4a90e2;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #00ff88;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            background: #00ff88;
+            color: #1a1a2e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Assistant</h1>
+            <p>Your intelligent companion powered by Ollama</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <!-- Messages will be added here dynamically -->
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your command (e.g., 'ollama tell me about India')" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <h3>Ollama Integration</h3>
+                <p>Ask questions and get responses in Hindi using Ollama AI</p>
+            </div>
+            <div class="feature-card">
+                <h3>YouTube Control</h3>
+                <p>Play music and videos directly through voice commands</p>
+            </div>
+            <div class="feature-card">
+                <h3>Web Search</h3>
+                <p>Search the web and open websites with simple commands</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function addMessage(text, isUser = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, true);
+                input.value = '';
+                
+                try {
+                    // Send command to backend
+                    const response = await fetch('/command', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ command: message })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to process command');
+                    }
+
+                    // Add processing message
+                    if (message.toLowerCase().startsWith('ollama')) {
+                        addMessage('प्रश्न पर कार्य किया जा रहा है...');
+                    } else if (message.toLowerCase().includes('play')) {
+                        addMessage('YouTube खोला जा रहा है...');
+                    } else {
+                        addMessage('कमांड प्राप्त हुई! प्रोसेस किया जा रहा है...');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('माफ़ कीजिए, कुछ त्रुटि हुई है। कृपया पुनः प्रयास करें।');
+                }
+            }
+        }
+
+        // Allow Enter key to send message
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Add welcome message
+        window.onload = function() {
+            addMessage('नमस्ते! मैं आपका AI असिस्टेंट हूं। आप मुझसे कुछ भी पूछ सकते हैं।');
+        };
+    </script>
+</body>
+</html>

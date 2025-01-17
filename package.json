@@ -1,0 +1,15 @@
+{
+  "name": "ai-assistant",
+  "version": "1.0.0",
+  "description": "AI Voice Assistant",
+  "main": "ai_assistant.js",
+  "dependencies": {
+    "node-gtts": "^2.0.2",
+    "selenium-webdriver": "^4.15.0",
+    "chromedriver": "^119.0.0",
+    "open": "^9.1.0",
+    "axios": "^1.6.2",
+    "express": "^4.18.2"
+  },
+  "type": "module"
+}
